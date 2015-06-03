@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+	<head>
+		<title><?=$this->title?></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta charset="utf-8">
+		<meta name="description" value="<?=htmlspecialchars($this->desc)?>">
+		<link rel="stylesheet" href="/css/common.css"/>
+	</head>
+	<body>
+		<h3><?=$this->title?></h3>
+	    <div class="extra">
+	        <span><?=$this->author?></span>
+	        <label>发布于</label>
+	        <span><?=$this->pubtime?></span>
+	    </div>
+		<div id="content"><?=$this->content?></div>
+		<script>
+
+			var imgs = document.getElementsByTagName('img');
+			for(var i = 0, l = imgs.length; i < l; i++) {
+				imgs[i].className = imgs[i].className + ' img-responsive';
+			}
+		</script>
+	</body>
+</html>
