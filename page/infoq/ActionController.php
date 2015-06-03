@@ -264,39 +264,22 @@ class Infoq_Controller extends PageController
 		}
 		
 		$content = $this->loadContentFromUrl($url);
-		$pos1 = strpos($content, 'property="og:title"') + strlen('property="og:title"');
-		$pos1 = strpos($content, '"', $pos1) + 1;
-		$pos2 = strpos($content, '"', $pos1);
-		$title = substr($content, $pos1, $pos2 - $pos1);
+
+		$title = $this->getStr($content, array('property="og:title"', '"'), '"');
 		
 		$this->set('title', $title);
-		$content = substr($content, $pos2);
-		
-		
-		$pos1 = strpos($content, 'property="og:description"') + strlen('property="og:description"');
-		$pos1 = strpos($content, '"', $pos1) + 1;
-		$pos2 = strpos($content, '"', $pos1);
-		$desc = substr($content, $pos1, $pos2 - $pos1);
+
+		$desc = $this->getStr($content, array('property="og:description"', '"'), '"');
 		$this->set('desc', $desc);
 		
-		$content = substr($content, $pos2);
-		
 		// 作者
-		$pos1 = strpos($content, 'class="editorlink f_taxonomyEditor">') + strlen('class="editorlink f_taxonomyEditor">');
-		$pos2 = strpos($content, '</a>', $pos1);
-		$author = trim(substr($content, $pos1, $pos2 - $pos1));
+		$author = trim($this->getStr($content, 'class="editorlink f_taxonomyEditor">', '</a>'));
 		$this->set('author', $author);
-		
-		$content = substr($content, $pos2);
 		
 		
 		// 发布时间
-		$pos1 = mb_strpos($content, '发布于') + mb_strlen('发布于');
-		$pos2 = mb_strpos($content, '日', $pos1);
-		$pubtime = trim(mb_substr($content, $pos1, $pos2 - $pos1 + 1));
+		$pubtime = trim($this->getStr($content, '发布于', '日')).'日';
 		$this->set('pubtime', $pubtime);
-		
-		$content = mb_substr($content, $pos2);
 		
 		
 		if (!preg_match('#<div class="text_info(?: text_info_article)?">(.+?)<div class="random_links">#mus', $content, $ms)) {
@@ -306,6 +289,14 @@ class Infoq_Controller extends PageController
 		if ( ($pos = strpos($content, '<hr />')) > 100) {
 			$content = substr($content, 0, $pos);
 		}
+		if ( ($pos1 = strpos($content, 'class="related_sponsors visible stacked">')) !== false) {
+			$pos2 = strpos($content, '<div class="clear"></div>', $pos1) + strlen('<div class="clear"></div>');
+			$pos2 = strpos($content, '<div class="clear"></div>', $pos2);
+			
+			$pos2 = strpos($content, '</div>', $pos2) + 6;
+			$content = substr($content, 0, $pos1).substr($content, $pos2);
+		}
+
 		$content = preg_replace('#<([^>\s/]+)[^>]*>#','<$1>',$content);
 		$this->set('content', $content);
 		

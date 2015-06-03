@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta charset="utf-8">
 		<meta name="description" value="<?=htmlspecialchars($this->desc)?>">
-		<link rel="stylesheet" href="/css/common.css"/>
+		<link rel="stylesheet" href="/css/common.css?tag=201506031210"/>
 	</head>
 	<body>
 		<h3><?=$this->title?></h3>
@@ -20,6 +20,10 @@
 			var imgs = document.getElementsByTagName('img');
 			for(var i = 0, l = imgs.length; i < l; i++) {
 				imgs[i].className = imgs[i].className + ' img-responsive';
+			}
+			var tables = document.getElementsByTagName('table');
+			for(var i = 0, l = tables.length; i < l; i++) {
+				tables[i].className = tables[i].className + ' table table-responsive table-striped table-condensed';
 			}
 		</script>
 	</body>
