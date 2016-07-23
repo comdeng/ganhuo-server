@@ -1,0 +1,34 @@
+<!doctype html>
+<?php $arti = $this->v['arti']?>
+<html>
+<head>
+    <title><?=$arti['title']?></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="description" value="<?=htmlspecialchars($arti['summary'])?>">
+    <link rel="stylesheet" href="/css/common.css"/>
+</head>
+<body>
+<h3><?=$arti['title']?></h3>
+<div class="extra">
+    <span><?=$arti['author']?></span>
+    <label>发布于</label>
+    <span><?=date('Y/m/d',$arti['publish_time'])?></span>
+</div>
+<div id="content"><?=$arti['content']?></div>
+<script>
+    var imgs = document.getElementsByTagName('img');
+    for(var i = 0, l = imgs.length; i < l; i++) {
+        imgs[i].className = imgs[i].className + ' img-responsive';
+    }
+    var tables = document.getElementsByTagName('table');
+    for(var i = 0, l = tables.length; i < l; i++) {
+        tables[i].className = tables[i].className + ' table table-responsive table-striped table-condensed';
+    }
+    var ipts = document.getElementsByTagName('input');
+    for(var i = 0, l = ipts.length; i < l; i++) {
+        ipts[i].parentNode.style.display = 'none';
+    }
+</script>
+</body>
+</html>

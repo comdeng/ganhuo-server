@@ -1,0 +1,12 @@
+/runroot/css/
+/tmp/
+/log/
+/vendor/
+/composer.lock
+/src/tmp/
+/src/log/
+/src/conf/
+/src/console/
+/bin/
+*.log
+*.out

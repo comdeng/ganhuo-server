@@ -1,0 +1,21 @@
+{
+  "name": "huimang/ganhuo-server",
+  "description": "ganhuo app's server",
+  "minimum-stability": "dev",
+  "license": "proprietary",
+  "require": {
+    "php": ">=7.0.0",
+    "huimang/wisphp": "dev-master"
+  },
+  "authors": [
+    {
+      "name": "ronnie",
+      "email": "ronnie@huimang.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "com\\huimang\\ganhuo\\": "src/"
+    }
+  }
+}
