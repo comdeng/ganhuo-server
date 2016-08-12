@@ -65,7 +65,7 @@ class Controller extends \wisphp\web\http\Controller
                       ]
                   )
                   ->order('publish_time desc, article_id', true)
-                  ->limit($page * 10, 10)
+                  ->limit($page * 20, 20)
                   ->get();
         $items = [];
         foreach ($rows as $row) {

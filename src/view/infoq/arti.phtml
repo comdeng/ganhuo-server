@@ -36,19 +36,38 @@
     <div id="content"><?= $arti['content'] ?></div>
 </div>
 <script>
+    var docWidth = document.documentElement.scrollWidth;
     var imgs = document.getElementsByTagName('img');
     for (var i = 0, l = imgs.length; i < l; i++) {
         var img = imgs[i];
-        img.style.width = '100%';
         if (img.getAttribute('data-src')) {
             (function(img){
                 setTimeout(function(){
-                    img.src = img.getAttribute('data-src');
+                    var image = new Image();
+                    image.src = img.getAttribute('data-src');
+                    if (image.complete) {
+                        onloadImage(image, img);
+                    } else {
+                        image.onload = function(){
+                            onloadImage(image, img);
+                        };
+                    }
+                    img.style.display = 'block';
+                    img.style.margin = '.05rem auto';
                     img.removeAttribute('data-src');
                 }, i * 200);
             })(img);
         }
     }
+
+    // 图片预加载完成后的回调函数
+    function onloadImage(image, img) {
+        if (image.width > docWidth) {
+            img.style.width = '100%';
+        }
+        img.src = image.src;
+    }
+
     var tables = document.getElementsByTagName('table');
     for (var i = 0, l = tables.length; i < l; i++) {
         tables[i].className = tables[i].className + ' table table-responsive table-striped table-condensed';
