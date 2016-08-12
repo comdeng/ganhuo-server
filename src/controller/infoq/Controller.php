@@ -30,62 +30,6 @@ class Controller extends \wisphp\web\http\Controller
     }
 
     /**
-     * 通过网址获取内容
-     *
-     * @param $url
-     *
-     * @return string
-     * @throws Exception
-     */
-    private function loadContentFromUrl($url)
-    {
-        $md5 = md5($url);
-        $path = TMP_ROOT . $md5;
-        if (is_readable($path) && time() - filemtime($path) < 60 * 60) {
-            $content = file_get_contents($path);
-        } else {
-            $curl = new Request(
-                array(
-                    CURLOPT_TIMEOUT => 20,
-                )
-            );
-            $ret = $curl->get($url);
-            if ($ret->code != 200) {
-                throw new Exception('infoq.u_code url:' . $url . '; code:' . $ret->code);
-            }
-            $content = $ret->content;
-            file_put_contents($path, $content);
-        }
-        return $content;
-    }
-
-    private function getStr(&$str, $starts, $end, $mb = false)
-    {
-        if ($mb) {
-            $funcs = array('mb_strpos', 'mb_strlen', 'mb_substr');
-        } else {
-            $funcs = array('strpos', 'strlen', 'substr');
-        }
-
-        if (is_int($starts)) {
-            $pos1 = $starts;
-        } else {
-            if (is_string($starts)) {
-                $pos1 = call_user_func($funcs[0], $str, $starts) + call_user_func($funcs[1], $starts);
-            } else {
-                $pos1 = 0;
-                foreach ($starts as $start) {
-                    $pos1 = call_user_func($funcs[0], $str, $start, $pos1) + call_user_func($funcs[1], $start);
-                }
-            }
-        }
-        $pos2 = call_user_func($funcs[0], $str, $end, $pos1);
-        $ret = call_user_func($funcs[2], $str, $pos1, $pos2 - $pos1);
-        $str = call_user_func($funcs[2], $str, $pos2 + strlen($end));
-        return $ret;
-    }
-
-    /**
      * 新闻
      */
     public function news()
@@ -138,7 +82,7 @@ class Controller extends \wisphp\web\http\Controller
                 'time' => date('Y年m月d日', $row['publish_time']),
                 'reply' => intval($row['comment_num']),
                 //'__LINK__' => $this->host . '/infoq/arti?url=' . rawurlencode($this->infoqHost . $row['original_url']),
-                '__LINK__' => $this->host . '/infoq/arti2/'.$row['article_id'],
+                '__LINK__' => $this->host . '/infoq/arti/'.$row['article_id'],
                 'summary' => $row['summary'],
             ];
             if ($row['translator']) {
@@ -182,7 +126,7 @@ class Controller extends \wisphp\web\http\Controller
         $this->showItems(__FUNCTION__);
     }
 
-    public function arti2($artiId)
+    public function arti($artiId)
     {
         $arti = Db::get('ganhuo')->table('article')
             ->where(['article_id' => $artiId])
@@ -191,65 +135,13 @@ class Controller extends \wisphp\web\http\Controller
             throw new \Exception('hapn.u_notfound');
         }
         $this->request->outputFormat = 'html';
+        $content = $arti['content'];
+
+        $content = preg_replace('#(\<img\s[^\>]*)(src=\")([^\"]+)(\"[^\/\>]*\/?\>)#i', '${1}data-src="${3}${4}', $content);
+        $arti['content'] = $content;
+
         $this->set('arti', $arti);
 
         $this->setView('infoq/arti.phtml');
     }
-
-    /**
-     * @throws Exception
-     */
-    public function arti()
-    {
-        $url = $this->get('url');
-        if (!$url) {
-            throw new Exception(Exception::EXCEPTION_NOT_FOUND);
-        }
-        if (strpos($url, $this->infoqHost) === false) {
-            throw new Exception(Exception::EXCEPTION_NOT_FOUND);
-        }
-
-        $content = $this->loadContentFromUrl($url);
-        $title = $this->getStr($content, array('property="og:title"', '"'), '"');
-
-        $this->set('title', $title);
-        $desc = $this->getStr($content, array('property="og:description"', '"'), '"');
-        $this->set('desc', $desc);
-
-        // 作者
-        $author = trim($this->getStr($content, 'class="editorlink f_taxonomyEditor">', '</a>'));
-        $this->set('author', $author);
-
-
-        // 发布时间
-        $pubtime = trim($this->getStr($content, '发布于', '日')) . '日';
-        $this->set('pubtime', $pubtime);
-
-
-        if (!preg_match(
-            '#<div class="text_info(?: text_info_article)?">(.+?)<div class="random_links">#mus',
-            $content,
-            $ms
-        )
-        ) {
-            throw new Exception(Exception::EXCEPTION_NOT_FOUND);
-        }
-        $content = $ms[1];
-        if (($pos = strpos($content, '<hr />')) > 100) {
-            $content = substr($content, 0, $pos);
-        }
-        if (($pos1 = strpos($content, 'class="related_sponsors visible stacked">')) !== false) {
-            $pos2 = strpos($content, '<div class="clear"></div>', $pos1) + strlen('<div class="clear"></div>');
-            $pos2 = strpos($content, '<div class="clear"></div>', $pos2);
-
-            $pos2 = strpos($content, '</div>', $pos2) + 6;
-            $content = substr($content, 0, $pos1) . substr($content, $pos2);
-        }
-        $content = preg_replace('#<([^>\s/]+)[^>]*>#', '<$1>', $content);
-        $this->set('content', $content);
-
-        $this->setView('tpl/arti.phtml');
-        usleep(100000);
-    }
-
 }

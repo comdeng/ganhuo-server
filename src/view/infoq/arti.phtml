@@ -1,33 +1,80 @@
 <!doctype html>
-<?php $arti = $this->v['arti']?>
+<?php $arti = $this->v['arti'] ?>
 <html>
 <head>
-    <title><?=$arti['title']?></title>
+    <title><?= $arti['title'] ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
-    <meta name="description" value="<?=htmlspecialchars($arti['summary'])?>">
-    <link rel="stylesheet" href="/css/common.css"/>
+    <meta name="description" value="<?= htmlspecialchars($arti['summary']) ?>">
+    <style>
+    html{font-size:100px;font-family: Arial,Consolas}
+    body{margin:0;paddding:0;font-size:.18rem;}
+    ol,ul{padding-left:.2rem;}
+    .container{margin:.1rem;color:#333;line-height:150%;}
+    .container {}
+    .container a{color:#24f;}
+    .container .extra{font-size:0.14rem;}
+    .container .extra label{color:#999;}
+    .container .extra span{color:#666;}
+    .container h1{font-size:.24rem;}
+    #content h1{font-size:0.2rem;}
+    #content h2{font-size:0.18rem;font-weight:bold;}
+    #content h3{font-size:0.16rem;}
+    #content blockquote{font-size:0.16rem;padding:.02rem 0;margin:.1rem;border-left:solid .04rem #EBF0F3;background-color:#FAFAFA;padding-left:.08rem;margin-left:0;}
+
+.hljs{font-size:.14rem;line-height:120%;font-family:consolas;display:block;overflow-x:auto;padding:0.1rem;background:#F0F0F0}.hljs,.hljs-subst{color:#444}.hljs-comment{color:#888888}.hljs-keyword,.hljs-attribute,.hljs-selector-tag,.hljs-meta-keyword,.hljs-doctag,.hljs-name{font-weight:bold}.hljs-type,.hljs-string,.hljs-number,.hljs-selector-id,.hljs-selector-class,.hljs-quote,.hljs-template-tag,.hljs-deletion{color:#880000}.hljs-title,.hljs-section{color:#880000;font-weight:bold}.hljs-regexp,.hljs-symbol,.hljs-variable,.hljs-template-variable,.hljs-link,.hljs-selector-attr,.hljs-selector-pseudo{color:#BC6060}.hljs-literal{color:#78A960}.hljs-built_in,.hljs-bullet,.hljs-code,.hljs-addition{color:#397300}.hljs-meta{color:#1f7199}.hljs-meta-string{color:#4d99bf}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:bold}
+    </style>
 </head>
 <body>
-<h3><?=$arti['title']?></h3>
-<div class="extra">
-    <span><?=$arti['author']?></span>
-    <label>发布于</label>
-    <span><?=date('Y/m/d',$arti['publish_time'])?></span>
+<div class="container">
+    <h1><?= $arti['title'] ?></h1>
+    <div class="extra">
+        <span><?= $arti['author'] ?></span>
+        <label>发布于</label>
+        <span><?= date('Y/m/d', $arti['publish_time']) ?></span>
+    </div>
+    <div id="content"><?= $arti['content'] ?></div>
 </div>
-<div id="content"><?=$arti['content']?></div>
 <script>
     var imgs = document.getElementsByTagName('img');
-    for(var i = 0, l = imgs.length; i < l; i++) {
-        imgs[i].className = imgs[i].className + ' img-responsive';
+    for (var i = 0, l = imgs.length; i < l; i++) {
+        var img = imgs[i];
+        img.style.width = '100%';
+        if (img.getAttribute('data-src')) {
+            (function(img){
+                setTimeout(function(){
+                    img.src = img.getAttribute('data-src');
+                    img.removeAttribute('data-src');
+                }, i * 200);
+            })(img);
+        }
     }
     var tables = document.getElementsByTagName('table');
-    for(var i = 0, l = tables.length; i < l; i++) {
+    for (var i = 0, l = tables.length; i < l; i++) {
         tables[i].className = tables[i].className + ' table table-responsive table-striped table-condensed';
     }
-    var ipts = document.getElementsByTagName('input');
-    for(var i = 0, l = ipts.length; i < l; i++) {
-        ipts[i].parentNode.style.display = 'none';
+
+    var pres = document.getElementsByTagName('pre');
+    if (pres.length) {
+        var script = document.createElement('script');
+        script.type = "text/script";
+        if (script.readyState) {
+            script.onreadystatechange = function() {
+                if (script.readyState == 'complete') {
+                    script.onreadystatechange = null;
+                    initPres();
+                }
+            }
+        } else {
+            script.onload = initPres;
+        }
+        script.src = '/static/highlight.pack.js';
+        document.body.appendChild(script);
+    }
+    function initPres() {
+        for (var i = 0, l = pres.length; i < l; i++) {
+            hljs.highlightBlock(pres[i]);
+        }
     }
 </script>
 </body>
